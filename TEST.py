@@ -1,7 +1,10 @@
 from trunk.basic_bot import *
 from trunk.branch.indeed_bot import *
+from trunk.branch.secretary_bot import *
 
 history = []
+
+secretary_bot = SecretaryBot()
 
 indeed_bot = IndeedBot(history)
 url = 'https://jobs.apple.com/search?job=55834501&openJobId=55834501#&openJobId=55834501'

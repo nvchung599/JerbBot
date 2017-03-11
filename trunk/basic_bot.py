@@ -1,11 +1,16 @@
+# PURPOSE:
+# Bot parent class.
+# Children bots scan/scrape their assigned websites, filtering jobs as they go.
+# These jobs are reported back to the Agency.
+
 from trunk.job import *
 from trunk.general import *
 import requests
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
+import abc
 
 
-class BasicBot(object):
+class BasicBot(metaclass=abc.ABCMeta):
 
     # ------------------------------------------------------------------------------------------------------------------
     # INITIALIZER
@@ -15,7 +20,7 @@ class BasicBot(object):
 
         self.name = name
         if not os.path.exists("trunk/branch/" + str(self.name) + ".txt"):
-            self.define_basis()
+            self.initialize_base_url()
 
         self.base_url = read_file("trunk/branch/" + self.name + ".txt")
         self.current_url = self.base_url
@@ -27,14 +32,16 @@ class BasicBot(object):
         self.job_index_rejected = 0
         self.need_to_terminate = False
 
-        # TODO read these from file
+        # TODO TODO TODO TODO TODO TODO TODO TODO
+        # TODO TODO TODO TODO TODO TODO TODO TODO
         self.bad_word_tolerance = 3
         self.good_word_tolerance = 2
         self.min_years_exp = 4
         self.min_str_len = 4
-        self.max_retries = 25
+        # TODO TODO TODO TODO TODO TODO TODO TODO
+        # TODO TODO TODO TODO TODO TODO TODO TODO
 
-
+        self.initialize_filters()
         self.essential_body = file_to_set('trunk/filters/essential_body.txt')
         self.excluded_body = file_to_set('trunk/filters/excluded_body.txt')
         self.excluded_title = file_to_set('trunk/filters/excluded_title.txt')
@@ -44,6 +51,9 @@ class BasicBot(object):
     # ------------------------------------------------------------------------------------------------------------------
 
     def scrape_all_pages(self):
+        """navigate and scrape site until specified/unspecified page
+        limit or some other form of termination (hangups, errors)"""
+
         for i in range(self.page_limit):
             try:
                 self.scrape_this_page()
@@ -73,30 +83,30 @@ class BasicBot(object):
         # TODO return statistics too
         # TODO return only those jobs that were not rejected by historical filter
 
+    @abc.abstractmethod
     def scrape_this_page(self):
-        print('implementation belongs to child classes')
-
+        """Parse the current URL and pass every job posting on the page through the function bullshit_filter()"""
+    @abc.abstractmethod
     def navigate_to_next_page(self):
-        print('implementation belongs to child classes')
-
+        """Turns to the next page, overcoming any bot/scraping protection the site may have"""
+    @abc.abstractmethod
     def end_check(self):
-        print('implementation belongs to child classes')
+        """Verifies that a next page exists"""
 
     def tally(self):
+        """This function should be called every time a job posting is processed"""
+
         self.job_index += 1
         print(self.name + ' processing job # ' + str(self.job_index))
 
-    # TODO need an extraction algorithm that will pull relevant, non-hyperlinked text from body (the meat of posting)
-    # TODO maintain spacing between words when appending lines to strings
-
-    # Given a job instance w/ URL defined... load job.body with all applicable text belonging to that page
     def extract_job_details(self, job):
+        """Given a job w/ URL defined... load the job with all applicable text belonging to that page"""
 
         my_str = ''
         try:
             r = requests.get(job.url)
         except:
-            print('error on page of job # %d            -' % self.job_index)
+            print('page loading error on job # %d       -' % self.job_index)
             print(job.url)
             job.reject(4)
             self.job_index_rejected += 1
@@ -121,6 +131,8 @@ class BasicBot(object):
         job.body = my_str
 
     def filter_history(self, job):
+        """Exclude duplicates of jobs that have already been saved to disk"""
+
         if job in self.history:
             print("historical duplicate on job # %d     X" % self.job_index)
             # print(job.url)
@@ -129,7 +141,7 @@ class BasicBot(object):
             return
 
     def filter_title(self, job):
-
+        """Reject jobs with at least 1 bad word"""
         title_words = get_words(job.title)
         for word in title_words:
             if word in self.excluded_title:
@@ -140,6 +152,7 @@ class BasicBot(object):
                 return
 
     def filter_duplicate(self, job):
+        """Exclude duplicates of jobs that have already been found during this search"""
 
         if job in self.jobs:
             print("duplicate posting on job # %d        X" % self.job_index)
@@ -149,12 +162,19 @@ class BasicBot(object):
             return
 
     def filter_body(self, job):
+        """
+        Reject jobs based on:
+            -good word count/tolerance
+            -bad word count/tolerance
+            -particular strings
+            -whether any text was extracted at all
+        """
 
         # TODO empty string indicates website has counter-scraping measures, implement delay in request to counteract
         if job.body == '':
             job.reject(4)
             self.job_index_rejected += 1
-            print('error on page of job # %d            -' % self.job_index)
+            print('text extraction error on job # %d    -' % self.job_index)
             print(job.url)
             return
 
@@ -213,73 +233,55 @@ class BasicBot(object):
             print(job.url)
 
     def bullshit_filter(self, title, company, url, city, date):
+        """Does a full-spectrum-relevance check and records the job, relevant or not"""
 
         this_job = Job(title, company, url, city, date)
 
         self.filter_history(this_job)
-
         if this_job.is_relevant:
             self.filter_duplicate(this_job)
-
         if this_job.is_relevant:
             self.filter_title(this_job)
-
         if this_job.is_relevant:
             self.extract_job_details(this_job)
-
             if this_job.is_relevant:
                 self.filter_body(this_job)
-
         if this_job.is_relevant:
             print('job # %d approved                    O' % self.job_index)
+
         self.jobs.append(this_job)
 
     # ------------------------------------------------------------------------------------------------------------------
     # FILE & MEMORY MANAGEMENT
     # ------------------------------------------------------------------------------------------------------------------
 
-    # Each website that is crawled is placed in a separate project folder
-    def create_project_dir(self, directory_name):
-        if not os.path.exists(directory_name):
-            os.makedirs(directory_name)
-            print("Creating new directory: " + directory_name)
-        else:
-            print("Existing directory detected: " + directory_name)
-
-    # TODO implement ordered tree search algorithm
-    # Create queue and crawled files (if not created)
-    def initialize_files(self):
+    @staticmethod
+    def initialize_filters():
+        """The filters are shared by all bots, and are stored in .txt files in trunk/filters"""
 
         directory_name = 'trunk/filters'
         essential_body = directory_name + "/essential_body.txt"
         excluded_body = directory_name + "/excluded_body.txt"
         excluded_title = directory_name + "/excluded_title.txt"
+
         if not os.path.exists(directory_name):
-            self.create_project_dir(directory_name)
+            create_folder(directory_name)
+
         for file in (essential_body, excluded_body, excluded_title):
             if not os.path.isfile(file):
                 print("Creating new file " + file)
                 write_file(file, "")
 
-        directory_name = 'trunk/records'
-        jobs_record = directory_name + "/jobs_record.txt"
-        jobs_rejected = directory_name + "/jobs_rejected.txt"
-        jobs_applied = directory_name + "/jobs_applied.txt"
-        if not os.path.exists(directory_name):
-            self.create_project_dir(directory_name)
-        for file in (jobs_record, jobs_rejected, jobs_applied):
-            if not os.path.isfile(file):
-                print("Creating new file " + file)
-                write_file(file, "")
-
-    # creates or updates basis.txt in current directory
-    def define_basis(self):
+    def initialize_base_url(self):
+        """Base URLs are stored in .txt files alongside their respective bots in trunk/branch"""
 
         path = "trunk/branch/" + str(self.name) + ".txt"
         if not os.path.exists(path):
+            print("\n!! NEW BOT DETECTED !!\n")
             print("Defining new basis for " + self.name)
         else:
             print("Updating basis for " + self.name)
 
-        input_url = input("Input new base URL for %s: ", self.name)
+        print("Input base URL:")
+        input_url = input()
         write_file(path, input_url)

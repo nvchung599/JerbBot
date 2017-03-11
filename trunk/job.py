@@ -1,3 +1,5 @@
+# PURPOSE:
+# Each instance of the Job class represents a job posting extracted from the web
 
 
 class Job(object):
@@ -6,9 +8,9 @@ class Job(object):
         self.title = title
         self.company = company
         self.url = url
-        self.date = date
+        self.date = date  # for now, a string
         self.city = city
-        self.body = ''
+        self.body = ''  # TODO, replace this string with an ordered list of strings (hint, get_words).
         self.is_relevant = True  # unless proven otherwise
         self.rejection_reason = ''
         self.rejection_identifier = None
@@ -24,6 +26,7 @@ class Job(object):
             % (self.title, self.company, self.city, self.date, self.url)
             )
 
+    # For identifying duplicate postings
     def __eq__(self, other):
 
         if self.url == other.url:

@@ -1,5 +1,9 @@
-# TODO list acceptable input base url, and basic method of filtering
-# TODO tune extract body deets in child class
+# PURPOSE:
+# works in BotAgency.
+# uses HTML navigation methods unique to Craigslist.com
+
+# TODO: bring CraigsBot up to date and employ it in Agency
+# TODO: tune extract_body_details here, since craigslist postings are all internal
 
 
 from trunk.basic_bot import *
@@ -40,4 +44,7 @@ class CraigsBot(BasicBot):
             self.bullshit_filter(title, company, url, city, date)
 
     def end_check(self):
-        print('TODOTODOTODO')
+        """TODO"""
+
+    def extract_job_details(self, job):
+        """TODO"""

@@ -1,5 +1,4 @@
 import re
-import pickle
 import os
 
 
@@ -12,6 +11,14 @@ def get_words(text):
     for i in range(len(word_list)):
         word_list[i] = word_list[i].lower()
     return word_list
+
+def create_folder(self, directory_name):
+
+    if not os.path.exists(directory_name):
+        os.makedirs(directory_name)
+        print("Creating new directory: " + directory_name)
+    else:
+        print("Existing directory detected: " + directory_name)
 
 # Create new file
 def write_file(path, data):
@@ -90,6 +97,7 @@ def is_integer(my_str):
     except:
         return False
 
+
 def find_bold_number(my_string):
     for i in range(len(my_string)):
         if my_string[i:i + 3] == '<b>':
@@ -99,6 +107,7 @@ def find_bold_number(my_string):
                     return (int(element))
 
     return 0
+
 
 
 # TODO http://opentechschool.github.io/python-data-intro/core/text-files.html

@@ -8,14 +8,21 @@
 #
 # provides all methods for job history data management
 
+# TODO: distinguish between jobs that are <applied/removed> and <rejected/removed>. Implement two new .pkl files.
+# TODO: filter parameters should be called from disk (.txt) and should be modifiable via UI
+# TODO: Employ CraigsBot
+
 from trunk.branch.indeed_bot import *
 from trunk.branch.craigs_bot import *
 from trunk.branch.secretary_bot import *
+import pickle
+
 
 class Agency(object):
 
     def __init__(self):
 
+        sort_files()
         self.new_jobs = []
         self.old_jobs = []
         self.all_jobs = []
@@ -68,6 +75,7 @@ class Agency(object):
             # TODO HISTORY: refresh, clear
             if my_input == 'r':
                 self.refresh_history()
+                self.statistics(self.old_jobs)
                 continue
 
             # TODO CONFIG: page count, filters parameters, toggle bots, min years exp
@@ -89,8 +97,9 @@ class Agency(object):
                     self.apply_one()
                 continue
 
-    # Commands all bots to scrape their sites. Resulting jobs aggregated. DOES NOT SAVE TO FILE
     def scrape(self):
+        """Commands all bots to scrape their sites. Resulting jobs aggregated and stored in RAM.
+        The UI command '3-save/commit' transfers these jobs from RAM to disk """
 
         self.jobs_recorded_load()
         self.new_jobs = []
@@ -102,9 +111,9 @@ class Agency(object):
         print('SCRAPE COMPLETE. NOTE: Resulting job list still in RAM')
         print('We observed %d new jobs' % len(self.new_jobs))
 
-    # Prints stats on a given job list
-    def statistics(self, jobs):
-
+    @staticmethod
+    def statistics(jobs):
+        """Prints stats on a given job list"""
         total_absolute = len(jobs)
         if total_absolute == 0:
             print('Statistics() Error: div by zero')
@@ -162,23 +171,22 @@ class Agency(object):
         # 5: 'duplicate'
         # 6: 'history duplicate'
 
-    # Prints each job entry to screen
-    def print_all(self, these_jobs):
+    @staticmethod
+    def print_all(jobs):
+        """Prints each job entry to screen"""
 
-        if len(these_jobs) == 0:
+        if len(jobs) == 0:
             print('print_all() recieved empty input')
             return
 
-        for job in these_jobs:
+        for job in jobs:
             if job.is_relevant:
                 print(job)
             else:
                 continue
 
-    # Manually process jobs one by one, user can selectively remove jobs from relevant job pool
-    # TODO: distinguish between <applied/removed> and <rejected/removed>
     def apply_one(self):
-
+        """Manually process jobs one by one, user can selectively remove jobs from relevant job pool"""
         temp_old_jobs = self.old_jobs
 
         for job in temp_old_jobs:
@@ -206,8 +214,8 @@ class Agency(object):
         print('\n\n\n\n\nSession ended, saving results')
         self.jobs_recorded_overwrite(temp_old_jobs)
 
-    # Removes all relevant jobs from history, and marks them as 'applied/removed'
     def apply_all(self):
+        """Removes all relevant jobs from history, and marks them as 'applied/removed'"""
 
         print("Are you sure? Enter 'y' if so")
 
@@ -223,12 +231,15 @@ class Agency(object):
             print('returning to main menu')
 
     def refresh_history(self):
-        self.old_jobs = self.secretary_bot.bullshit_filter(self.old_jobs)
-        self.statistics(self.old_jobs)
+        """Reapplies filters to jobs that are stored on disk. Saves automatically."""
+
+        self.old_jobs = self.secretary_bot.history_bullshit_filter(self.old_jobs)
         self.jobs_recorded_overwrite(self.old_jobs)
 
-    # Adds new jobs to file, but does not overwrite (which erases historical jobs)
     def jobs_recorded_update(self, jobs):
+        """Adds new jobs to existing job list on disk.
+        Differs from jobs_recorded_overwrite, which is used after jobs on disk have been modified"""
+
         if len(jobs) == 0:
             print('There is no data to save')
         else:
@@ -239,6 +250,8 @@ class Agency(object):
             print('Job list has been committed to disk')
 
     def jobs_recorded_overwrite(self, jobs):
+        """An overwrite save of jobs on disk"""
+
         if len(jobs) == 0:
             print('There is no data to save')
         else:
@@ -248,6 +261,7 @@ class Agency(object):
             print('Job list has been committed to disk')
 
     def jobs_recorded_load(self):
+        """Updates Agency's job list. Call whenever you need to modify the job list on disk."""
 
         if os.path.exists('trunk/records/jobs_recorded.pkl'):
             with open('trunk/records/jobs_recorded.pkl', 'rb') as file_input:
@@ -256,14 +270,3 @@ class Agency(object):
         else:
             print("job_records cannot be found")
             return False
-
-    # UNUSED!!!
-    # TODO not useful for bullshit_filter(), but good for updating records
-    def jobs_remove_duplicates(self, job_list):
-        new_job_list = []
-        for job in job_list:
-            if job not in new_job_list:
-                new_job_list.append(job)
-        return new_job_list
-
-

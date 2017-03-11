@@ -1,13 +1,19 @@
+# PURPOSE:
+# works in BotAgency.
+# does not search for jobs.
+# exists to refilter and refresh the jobs_recorded.pkl on the disk.
+
 from trunk.basic_bot import *
 
-# I work in BotAgency. I do not search for jobs. I exist to refilter and refresh the jobs_recorded.pkl on the disk.
+
 class SecretaryBot(BasicBot):
 
     def __init__(self):
         place_holder = []
-        super().__init__('indeed_bot', place_holder)
+        super().__init__('secretary_bot', place_holder)
 
-    def bullshit_filter(self, old_jobs):
+    def history_bullshit_filter(self, old_jobs):
+        """reapplies filters to jobs that have already been saved to disk"""
 
         self.job_index = 0
         refreshed_jobs = []
@@ -16,7 +22,7 @@ class SecretaryBot(BasicBot):
         for this_job in old_jobs:
 
             self.job_index += 1
-            print("secretary_bot processing job # %d" % self.job_index)
+            print(self.name + " processing job # %d" % self.job_index)
 
             if this_job.rejection_identifier == 0:  # already marked as applied
                 refreshed_jobs.append(this_job)
@@ -35,3 +41,12 @@ class SecretaryBot(BasicBot):
             refreshed_jobs.append(this_job)
 
         return refreshed_jobs
+
+    def scrape_this_page(self):
+        return
+
+    def navigate_to_next_page(self):
+        return
+
+    def end_check(self):
+        return

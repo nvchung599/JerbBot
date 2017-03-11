@@ -1,16 +1,46 @@
-# TODO list acceptable input base url, and basic method of filtering
-# TODO tune extract body deets in child class
-
+# PURPOSE:
+# works in BotAgency.
+# uses HTML navigation methods unique to Indeed.com
 
 from trunk.basic_bot import *
+from fake_useragent import UserAgent
 
 
 class IndeedBot(BasicBot):
 
     def __init__(self, history):
         super().__init__('indeed_bot', history)
+        self.max_retries = 25
+
+    def scrape_this_page(self):
+
+        r = requests.get(self.current_url)
+        soup = BeautifulSoup(r.content, "html.parser")
+        row_blocks = soup.find_all('h2', {'class': 'jobtitle'})
+        row_dates = soup.find_all('span', {'class': 'date'})
+        row_cities = soup.find_all('span', {'itemprop': 'addressLocality'})
+
+        for i in range(len(row_blocks)):
+
+            self.tally()
+
+            title = row_blocks[i].contents[1].get('title')
+            company = strip(row_blocks[i].next_sibling.next_sibling.get_text())
+            url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
+            date = row_dates[i].get_text()
+            city = row_cities[i].get_text()
+
+            self.bullshit_filter(title, company, url, city, date)
 
     def navigate_to_next_page(self):
+        """
+        Indeed.com has an anti-scraping mechanism that randomly prevents the bot from obtaining the correct URL from
+        the 'Next' button. When this happens, the resulting URL either leads to an invalid page (creates an exception)
+        or it links to the same page as before, keeping the bot in one spot.
+
+        This can be circumvented by simply looping the HTML request until the bot can verify a page turb, by observing
+        the bolded pagination in the page footer.
+        """
 
         are_we_there_yet = False  # indicator for whether or not we succeeded at jumping the page
         ua = UserAgent()
@@ -62,27 +92,9 @@ class IndeedBot(BasicBot):
 
         print("TURNED PAGE TO " + self.current_url)
 
-    def scrape_this_page(self):
-
-        r = requests.get(self.current_url)
-        soup = BeautifulSoup(r.content, "html.parser")
-        row_blocks = soup.find_all('h2', {'class': 'jobtitle'})
-        row_dates = soup.find_all('span', {'class': 'date'})
-        row_cities = soup.find_all('span', {'itemprop': 'addressLocality'})
-
-        for i in range(len(row_blocks)):
-
-            self.tally()
-
-            title = row_blocks[i].contents[1].get('title')
-            company = strip(row_blocks[i].next_sibling.next_sibling.get_text())
-            url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
-            date = row_dates[i].get_text()
-            city = row_cities[i].get_text()
-
-            self.bullshit_filter(title, company, url, city, date)
-
     def end_check(self):
+        """In the case of Indeed, the last page will not have any 'Next' pagination, bold or not"""
+
         r = requests.get(self.current_url)
         soup = BeautifulSoup(r.content, "html.parser")
         row_blocks = soup.find_all('span', {'class': 'np'})
@@ -96,3 +108,7 @@ class IndeedBot(BasicBot):
         else:
             print('NEXT BUTTON CONFIRMED')
             return True
+
+
+
+
