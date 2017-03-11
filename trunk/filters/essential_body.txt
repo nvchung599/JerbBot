@@ -1,0 +1,22 @@
+3d
+ansys fea finite
+cnc machining
+dfa
+dfmae
+drafting drafter draft
+environmental
+fabrication dfm
+manufacturing manufacture manufacturer
+materials material
+mcad cad solidworks nx proe inventor
+mechanical
+metal metallic
+mil
+modeling
+pe eit
+plastic
+printing printer
+shock
+thermal
+tolerance
+vibration
