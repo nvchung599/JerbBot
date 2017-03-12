@@ -66,6 +66,7 @@ class Agency(object):
 
             if my_input == '3':
                 self.jobs_save(self.new_jobs, 'update')
+                self.new_jobs = []
                 continue
 
             if my_input == 'r':
@@ -117,10 +118,11 @@ class Agency(object):
         # number of jobs not applied for yet (relevant & irrelevant)
         total_pending = 0
         for job in jobs:
-            if job.rejection_identifier != 0:
+            if job.rejection_identifier not in ['a', 'r']:
                 total_pending += 1
 
-        reason_0 = 0
+        reason_a = 0
+        reason_r = 0
         reason_1 = 0
         reason_2 = 0
         reason_3 = 0
@@ -128,8 +130,10 @@ class Agency(object):
 
         for job in jobs:
             if not job.is_relevant:
-                if job.rejection_identifier == 0:
-                    reason_0 += 1
+                if job.rejection_identifier == 'a':
+                    reason_a += 1
+                if job.rejection_identifier == 'r':
+                    reason_r += 1
                 if job.rejection_identifier == 1:
                     reason_1 += 1
                 if job.rejection_identifier == 2:
@@ -147,7 +151,8 @@ class Agency(object):
         print('...')
         print('Relevant Jobs        %d' % (total_pending-total_reject))
         print('Irrelevant Jobs      %d' % total_reject)
-        print('Applied Jobs         %d' % reason_0)
+        print('Jobs You Applied     %d' % reason_a)
+        print('Jobs You Rejected    %d' % reason_r)
         print('...')
         print('Approved Pending     %d %%' % (((total_pending-total_reject) / total_pending) * 100))
         print('Rejected-Title       %d %%' % ((reason_1 / total_pending) * 100))
@@ -188,22 +193,31 @@ class Agency(object):
             if job.is_relevant:
                 print(job)
                 print('\nExamine this job, then provide command')
-                print('______________________________')
-                print(" 1-Mark  |  2-Next  |  q-Quit")
-                print('____________ Input ___________')
+                print('_________________________________')
+                print(" 1-Apply  |  2-Reject  |  3-Skip ")
+                print(" q-Quit                          ")
+                print('____________ Input ______________')
                 my_input = input()
 
                 if my_input == '1':
-                    job.reject(0)
-                    print('Marked as applied/removed')
+                    job.reject('a')
+                    print('Marked as applied & removed')
                     continue
 
                 if my_input == '2':
+                    job.reject('r')
+                    print('Marked as rejected & removed')
+                    continue
+
+                if my_input == '3':
                     print('Skipping...')
                     continue
 
                 if my_input == 'q':
                     break
+                else:
+                    print('Wrong input... Skipping...')
+                    continue
 
         print('\n\n\n\n\nSession ended, saving results')
         self.jobs_save(temp_old_jobs, 'overwrite')
@@ -217,7 +231,7 @@ class Agency(object):
 
             for job in self.old_jobs:
                 if job.is_relevant:
-                    job.reject(0)  # 0 for apply
+                    job.reject('a')  # 0 for apply
             self.jobs_save(self.old_jobs, 'overwrite')
             print('All relevant jobs have been marked as applied')
 

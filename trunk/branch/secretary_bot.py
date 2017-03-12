@@ -24,7 +24,7 @@ class SecretaryBot(BasicBot):
             self.job_index += 1
             print(self.name + " processing job # %d" % self.job_index)
 
-            if this_job.rejection_identifier == 0:  # already marked as applied
+            if this_job.rejection_identifier in ('a', 'r'):  # already marked as removed, don't filter
                 refreshed_jobs.append(this_job)
                 continue
 

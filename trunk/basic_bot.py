@@ -37,7 +37,7 @@ class BasicBot(metaclass=abc.ABCMeta):
         self.good_word_tolerance = 2
         self.min_years_exp = 4
         self.min_str_len = 4
-        self.page_limit = 19
+        self.page_limit = 1
         # TODO TODO TODO TODO TODO TODO TODO TODO
         # TODO TODO TODO TODO TODO TODO TODO TODO
 
