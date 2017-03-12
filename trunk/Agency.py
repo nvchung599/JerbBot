@@ -22,7 +22,7 @@ class Agency(object):
         self.new_jobs = []
         self.old_jobs = []
         self.all_jobs = []
-        self.jobs_recorded_load()
+        self.jobs_load()
         self.secretary_bot = SecretaryBot()
         self.bot_squad = []
         self.bot_squad.append(IndeedBot(self.old_jobs))
@@ -55,7 +55,7 @@ class Agency(object):
             my_input = input()
 
             if my_input == '1':
-                if self.jobs_recorded_load():
+                if self.jobs_load():
                     self.print_all(self.old_jobs)
                     self.statistics(self.old_jobs)
                 continue
@@ -83,12 +83,12 @@ class Agency(object):
                 break
 
             if my_input == 'e':
-                if self.jobs_recorded_load():
+                if self.jobs_load():
                     self.apply_all()
                 continue
 
             if my_input == 'w':
-                if self.jobs_recorded_load():
+                if self.jobs_load():
                     self.apply_one()
                 continue
 
@@ -96,7 +96,7 @@ class Agency(object):
         """Commands all bots to scrape their sites. Resulting jobs aggregated and stored in RAM.
         The UI command '3-save/commit' transfers these jobs from RAM to disk """
 
-        self.jobs_recorded_load()
+        self.jobs_load()
         self.new_jobs = []
 
         for bot in self.bot_squad:
@@ -149,16 +149,16 @@ class Agency(object):
         print('\n')
         print('_____Job Statistics_____')
         print('...')
-        print('Relevant Jobs        %d' % (total_pending-total_reject))
-        print('Irrelevant Jobs      %d' % total_reject)
-        print('Jobs You Applied     %d' % reason_a)
-        print('Jobs You Rejected    %d' % reason_r)
+        print('Pending Relevant Jobs        %d' % (total_pending-total_reject))
+        print('Pending Irrelevant Jobs      %d' % total_reject)
+        print('Jobs You Applied/Removed     %d' % reason_a)
+        print('Jobs You Rejected/Removed    %d' % reason_r)
         print('...')
-        print('Approved Pending     %d %%' % (((total_pending-total_reject) / total_pending) * 100))
-        print('Rejected-Title       %d %%' % ((reason_1 / total_pending) * 100))
-        print('Rejected-BodyText    %d %%' % ((reason_2 / total_pending) * 100))
-        print('Rejected-Experience  %d %%' % ((reason_3 / total_pending) * 100))
-        print('Rejected-BadUrl      %d %%' % ((reason_4 / total_pending) * 100))
+        print('Relevant Pending         %d %%' % (((total_pending-total_reject) / total_pending) * 100))
+        print('Irrelevant-Title         %d %%' % ((reason_1 / total_pending) * 100))
+        print('Irrelevant-BodyText      %d %%' % ((reason_2 / total_pending) * 100))
+        print('Irrelevant-Experience    %d %%' % ((reason_3 / total_pending) * 100))
+        print('Irrelevant-BadUrl        %d %%' % ((reason_4 / total_pending) * 100))
         print('\n')
 
         # FOR REFERENCE
@@ -262,16 +262,16 @@ class Agency(object):
             elif method == 'overwrite':
                 pass
 
-            with open('trunk/records/jobs_recorded.pkl', 'wb') as file_output:
+            with open('trunk/records/jobs_saved.pkl', 'wb') as file_output:
                 pickle.dump(jobs, file_output, pickle.HIGHEST_PROTOCOL)
                 self.old_jobs = jobs
             print('Job list has been committed to disk')
 
-    def jobs_recorded_load(self):
+    def jobs_load(self):
         """Updates Agency's job list. Call whenever you need to modify the job list on disk."""
 
-        if os.path.exists('trunk/records/jobs_recorded.pkl'):
-            with open('trunk/records/jobs_recorded.pkl', 'rb') as file_input:
+        if os.path.exists('trunk/records/jobs_saved.pkl'):
+            with open('trunk/records/jobs_saved.pkl', 'rb') as file_input:
                 self.old_jobs = pickle.load(file_input)
             return True
         else:

@@ -42,8 +42,8 @@ class Job(object):
         self.is_relevant = False
 
         reason_dict = {
-            'a': 'applied & removed',
-            'r': 'rejected & removed',
+            'a': 'applied & removed by user',
+            'r': 'rejected & removed by user',
             1: 'bad title',
             2: 'bad body text',
             3: 'bad exp req',

@@ -1,7 +1,7 @@
 # PURPOSE:
 # works in BotAgency.
 # does not search for jobs.
-# exists to refilter and refresh the jobs_recorded.pkl on the disk.
+# exists to refilter and refresh the jobs_saved.pkl on the disk.
 
 from trunk.basic_bot import *
 

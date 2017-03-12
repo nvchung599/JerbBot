@@ -7,6 +7,7 @@ def strip(my_str):
 
 # returns all words in list w/o punctuation, lower cased
 def get_words(text):
+    # print('IM BEING CALLLEDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD')
     word_list = re.compile('\w+').findall(text)
     for i in range(len(word_list)):
         word_list[i] = word_list[i].lower()
