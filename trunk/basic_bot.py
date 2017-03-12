@@ -195,6 +195,7 @@ class BasicBot(metaclass=abc.ABCMeta):
             if job.body[i] in self.essential_body:
                 if job.body[i] not in good_words:  # no dupes
                     good_words.append(job.body[i])
+                    job.good_hits.append(job.body[i])
                     good_word_count += 1
 
             # check for singular, FORBIDDEN keywords. a specified number of forbidden keywords is tolerated
