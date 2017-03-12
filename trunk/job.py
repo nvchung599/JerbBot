@@ -8,9 +8,9 @@ class Job(object):
         self.title = title
         self.company = company
         self.url = url
-        self.date = date  # for now, a string
+        self.date = date
         self.city = city
-        self.body = ''  # TODO, replace this string with an ordered list of strings (hint, get_words).
+        self.body = ''
         self.is_relevant = True  # unless proven otherwise
         self.rejection_reason = ''
         self.rejection_identifier = None

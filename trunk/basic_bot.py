@@ -24,7 +24,6 @@ class BasicBot(metaclass=abc.ABCMeta):
 
         self.base_url = read_file("trunk/branch/" + self.name + ".txt")
         self.current_url = self.base_url
-        self.page_limit = 5
         self.current_page_number = 1
         self.history = history
         self.jobs = []
@@ -38,6 +37,7 @@ class BasicBot(metaclass=abc.ABCMeta):
         self.good_word_tolerance = 2
         self.min_years_exp = 4
         self.min_str_len = 4
+        self.page_limit = 5
         # TODO TODO TODO TODO TODO TODO TODO TODO
         # TODO TODO TODO TODO TODO TODO TODO TODO
 

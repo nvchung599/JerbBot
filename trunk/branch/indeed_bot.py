@@ -38,8 +38,8 @@ class IndeedBot(BasicBot):
         the 'Next' button. When this happens, the resulting URL either leads to an invalid page (creates an exception)
         or it links to the same page as before, keeping the bot in one spot.
 
-        This can be circumvented by simply looping the HTML request until the bot can verify a page turb, by observing
-        the bolded pagination in the page footer.
+        This can be circumvented by simply looping the HTML request and randomizing the user-agent until the bot can
+        verify a page turn by observing the bolded pagination in the page footer.
         """
 
         are_we_there_yet = False  # indicator for whether or not we succeeded at jumping the page

@@ -8,10 +8,6 @@
 #
 # provides all methods for job history data management
 
-# TODO: distinguish between jobs that are <applied/removed> and <rejected/removed>. Implement two new .pkl files.
-# TODO: filter parameters should be called from disk (.txt) and should be modifiable via UI
-# TODO: Employ CraigsBot
-
 from trunk.branch.indeed_bot import *
 from trunk.branch.craigs_bot import *
 from trunk.branch.secretary_bot import *
@@ -72,13 +68,11 @@ class Agency(object):
                 self.jobs_recorded_update(self.new_jobs)
                 continue
 
-            # TODO HISTORY: refresh, clear
             if my_input == 'r':
                 self.refresh_history()
                 self.statistics(self.old_jobs)
                 continue
 
-            # TODO CONFIG: page count, filters parameters, toggle bots, min years exp
             if my_input == '5':
                 print('WIP for this input')
                 continue
