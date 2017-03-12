@@ -80,8 +80,6 @@ class BasicBot(metaclass=abc.ABCMeta):
                 only_new_jobs.append(each_job)
 
         return only_new_jobs
-        # TODO return statistics too
-        # TODO return only those jobs that were not rejected by historical filter
 
     @abc.abstractmethod
     def scrape_this_page(self):
@@ -102,7 +100,7 @@ class BasicBot(metaclass=abc.ABCMeta):
     def extract_job_details(self, job):
         """Given a job w/ URL defined... load the job with all applicable text belonging to that page"""
 
-        my_str = ''
+        my_words = []
         try:
             r = requests.get(job.url)
         except:
@@ -118,17 +116,11 @@ class BasicBot(metaclass=abc.ABCMeta):
         for tag in target_tags:
             target_blocks = soup.find_all(tag)
             for block in target_blocks:
-                append_this = block.get_text()
-                if len(get_words(append_this)) >= self.min_str_len:
-                    my_str += ' '  # ensures that lines don't stick w/o spacing
-                    my_str += append_this
-                # else:
-                #     print('HIT')
-                # print(len(get_words(append_this)))
-                # print('---' + append_this + '\n\n')
-                # my_str += (block.get_text() + '\n')
+                append_this = get_words(block.get_text())
+                if len(append_this) >= self.min_str_len:
+                    my_words += append_this
 
-        job.body = my_str
+        job.body = my_words
 
     def filter_history(self, job):
         """Exclude duplicates of jobs that have already been saved to disk"""
@@ -170,33 +162,32 @@ class BasicBot(metaclass=abc.ABCMeta):
             -whether any text was extracted at all
         """
 
-        # TODO empty string indicates website has counter-scraping measures, implement delay in request to counteract
-        if job.body == '':
+        # empty string indicates website has counter-scraping measures, implement delay in request to counteract
+        if len(job.body) == 0:
             job.reject(4)
             self.job_index_rejected += 1
             print('text extraction error on job # %d    -' % self.job_index)
             print(job.url)
             return
 
-        body_words = get_words(job.body)
         bad_word_count = 0
         bad_words = []
         good_word_count = 0
         good_words = []
 
-        for i in range(len(body_words)):
+        for i in range(len(job.body)):
 
             # check for singular, DESIRED keywords. a specified number of desired keywords is required for approval
-            if body_words[i] in self.essential_body:
-                if body_words[i] not in good_words:  # no dupes
-                    good_words.append(body_words[i])
+            if job.body[i] in self.essential_body:
+                if job.body[i] not in good_words:  # no dupes
+                    good_words.append(job.body[i])
                     good_word_count += 1
 
             # check for singular, FORBIDDEN keywords. a specified number of forbidden keywords is tolerated
-            if body_words[i] in self.excluded_body:
+            if job.body[i] in self.excluded_body:
 
-                if body_words[i] not in bad_words:
-                    bad_words.append(body_words[i])
+                if job.body[i] not in bad_words:
+                    bad_words.append(job.body[i])
                     bad_word_count += 1
                 # print('BAD WORD FOUND ' + body_words[i])
                 if bad_word_count > self.bad_word_tolerance:
@@ -209,12 +200,12 @@ class BasicBot(metaclass=abc.ABCMeta):
 
             # check for characteristic "_ or more years of exp" line
             try:  # check if it's a number
-                if is_integer(body_words[i]):
-                    my_int = int(body_words[i])
+                if is_integer(job.body[i]):
+                    my_int = int(job.body[i])
                     if my_int > self.min_years_exp:
                         for j in range(5):  # scan the few words following the number
                             try:
-                                if body_words[i+j] in ('experience', 'years'):
+                                if job.body[i+j] in ('experience', 'years'):
                                     job.reject(3)
                                     self.job_index_rejected += 1
                                     print('bad exp req on job # %d              X' % self.job_index)

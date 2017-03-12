@@ -29,8 +29,8 @@ class IndeedBot(BasicBot):
             url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
             date = row_dates[i].get_text()
             city = row_cities[i].get_text()
-
             self.bullshit_filter(title, company, url, city, date)
+
 
     def navigate_to_next_page(self):
         """

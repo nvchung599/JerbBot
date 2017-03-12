@@ -10,7 +10,7 @@ class Job(object):
         self.url = url
         self.date = date
         self.city = city
-        self.body = ''
+        self.body = []
         self.is_relevant = True  # unless proven otherwise
         self.rejection_reason = ''
         self.rejection_identifier = None
