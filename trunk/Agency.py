@@ -65,7 +65,7 @@ class Agency(object):
                 continue
 
             if my_input == '3':
-                self.jobs_recorded_update(self.new_jobs)
+                self.jobs_save(self.new_jobs, 'update')
                 continue
 
             if my_input == 'r':
@@ -206,7 +206,7 @@ class Agency(object):
                     break
 
         print('\n\n\n\n\nSession ended, saving results')
-        self.jobs_recorded_overwrite(temp_old_jobs)
+        self.jobs_save(temp_old_jobs, 'overwrite')
 
     def apply_all(self):
         """Removes all relevant jobs from history, and marks them as 'applied/removed'"""
@@ -218,7 +218,7 @@ class Agency(object):
             for job in self.old_jobs:
                 if job.is_relevant:
                     job.reject(0)  # 0 for apply
-            self.jobs_recorded_overwrite(self.old_jobs)
+            self.jobs_save(self.old_jobs, 'overwrite')
             print('All relevant jobs have been marked as applied')
 
         else:
@@ -228,27 +228,26 @@ class Agency(object):
         """Reapplies filters to jobs that are stored on disk. Saves automatically."""
 
         self.old_jobs = self.secretary_bot.history_bullshit_filter(self.old_jobs)
-        self.jobs_recorded_overwrite(self.old_jobs)
+        self.jobs_save(self.old_jobs, 'overwrite')
 
-    def jobs_recorded_update(self, jobs):
-        """Adds new jobs to existing job list on disk.
-        Differs from jobs_recorded_overwrite, which is used after jobs on disk have been modified"""
+    def jobs_save(self, jobs, method):
+        """
+        method 'update'
+        Adds new jobs to existing job list on disk.
 
-        if len(jobs) == 0:
-            print('There is no data to save')
-        else:
-            jobs += self.old_jobs  # <- only difference between updates/overwrite is this line
-            with open('trunk/records/jobs_recorded.pkl', 'wb') as file_output:
-                pickle.dump(jobs, file_output, pickle.HIGHEST_PROTOCOL)
-                self.old_jobs = jobs
-            print('Job list has been committed to disk')
-
-    def jobs_recorded_overwrite(self, jobs):
-        """An overwrite save of jobs on disk"""
+        method 'overwrite'
+        An overwrite save of jobs on disk, used when jobs on disk have been modified and should be overwritten
+        """
 
         if len(jobs) == 0:
             print('There is no data to save')
         else:
+
+            if method == 'update':
+                jobs += self.old_jobs
+            elif method == 'overwrite':
+                pass
+
             with open('trunk/records/jobs_recorded.pkl', 'wb') as file_output:
                 pickle.dump(jobs, file_output, pickle.HIGHEST_PROTOCOL)
                 self.old_jobs = jobs
