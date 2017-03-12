@@ -24,6 +24,7 @@ class BasicBot(metaclass=abc.ABCMeta):
 
         self.base_url = read_file("trunk/branch/" + self.name + ".txt")
         self.current_url = self.base_url
+        self.current_soup = None
         self.current_page_number = 1
         self.history = history
         self.jobs = []
@@ -54,17 +55,30 @@ class BasicBot(metaclass=abc.ABCMeta):
         """navigate and scrape site until specified/unspecified page
         limit or some other form of termination (hangups, errors)"""
 
+        # requests per page on indeed???
+        # make 'current_soup'
+        # reduce requests from min 4 per page to min 1 per page
+        # make initial soup before loop, seed loop with soup
+
+        r = requests.get(self.current_url)
+        self.current_soup = BeautifulSoup(r.content, "html.parser")
+
         for i in range(self.page_limit):
             try:
-                self.scrape_this_page()
-                if not self.end_check():
+                self.scrape_this_page(self.current_soup)
+
+                if not self.end_check(self.current_soup):
                     break
-                self.navigate_to_next_page()
-                self.current_page_number += 1
+
+                self.navigate_to_next_page(self.current_soup)
 
                 if self.need_to_terminate:
                     print(self.name + ' has encountered a problem (probably requests hangup) and is terminating early')
                     break
+
+                self.current_page_number += 1
+
+
 
             except:
                 print('\n\nSCRAPE_ALL_PAGES HAS ENCOUNTERED ERROR AND HAS BROKEN LOOP')
@@ -82,13 +96,13 @@ class BasicBot(metaclass=abc.ABCMeta):
         return only_new_jobs
 
     @abc.abstractmethod
-    def scrape_this_page(self):
+    def scrape_this_page(self, soup):
         """Parse the current URL and pass every job posting on the page through the function bullshit_filter()"""
     @abc.abstractmethod
-    def navigate_to_next_page(self):
+    def navigate_to_next_page(self, soup):
         """Turns to the next page, overcoming any bot/scraping protection the site may have"""
     @abc.abstractmethod
-    def end_check(self):
+    def end_check(self, soup):
         """Verifies that a next page exists"""
 
     def tally(self):

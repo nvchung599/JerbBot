@@ -12,10 +12,10 @@ class IndeedBot(BasicBot):
         super().__init__('indeed_bot', history)
         self.max_retries = 25
 
-    def scrape_this_page(self):
+    def scrape_this_page(self, soup):
 
-        r = requests.get(self.current_url)
-        soup = BeautifulSoup(r.content, "html.parser")
+        # r = requests.get(self.current_url)
+        # soup = BeautifulSoup(r.content, "html.parser")
         row_blocks = soup.find_all('h2', {'class': 'jobtitle'})
         row_dates = soup.find_all('span', {'class': 'date'})
         row_cities = soup.find_all('span', {'itemprop': 'addressLocality'})
@@ -32,7 +32,7 @@ class IndeedBot(BasicBot):
             self.bullshit_filter(title, company, url, city, date)
 
 
-    def navigate_to_next_page(self):
+    def navigate_to_next_page(self, soup):
         """
         Indeed.com has an anti-scraping mechanism that randomly prevents the bot from obtaining the correct URL from
         the 'Next' button. When this happens, the resulting URL either leads to an invalid page (creates an exception)
@@ -46,6 +46,8 @@ class IndeedBot(BasicBot):
         ua = UserAgent()
         retries = 0
 
+
+
         while not are_we_there_yet:
 
             print('TRYING TO TURN PAGE')
@@ -54,12 +56,9 @@ class IndeedBot(BasicBot):
                 self.need_to_terminate = True
                 break
 
-            # roll dice for current page's HTML code
+            # vvv Rolled Dice vvv
             headers = {'User-Agent': ua.random}
-            r = requests.get(self.current_url, headers=headers)
-            soup = BeautifulSoup(r.content, "html.parser")
             next_page_element = soup.find_all('span', {'class': 'np'})
-
 
             # get next page address
             if self.current_page_number == 1:
@@ -78,8 +77,8 @@ class IndeedBot(BasicBot):
 
             # verify that the next page is consistent with the bold page number footer
             r = requests.get(next_page_link, headers=headers)
-            soup = BeautifulSoup(r.content, "html.parser")
-            pagination_buttons = soup.find('div', {'class': 'pagination'})
+            next_soup = BeautifulSoup(r.content, "html.parser")
+            pagination_buttons = next_soup.find('div', {'class': 'pagination'})
 
             # gets bold number
             next_page_number = self.current_page_number + 1
@@ -87,16 +86,24 @@ class IndeedBot(BasicBot):
             if bold_page_number == next_page_number:
                 are_we_there_yet = True
                 print('BOLD NUMBER IDENTIFIED AS %d' % bold_page_number)
+            else:
+                # roll the dice for current page's HTML code
+                print('RETRYING HTML REQUEST ON CURRENT PAGE')
+                r = requests.get(self.current_url, headers=headers)
+                soup = BeautifulSoup(r.content, "html.parser")
 
-        self.current_url = next_page_link
+        if self.need_to_terminate:
+            pass
+        else:
+            self.current_url = next_page_link
+            self.current_soup = next_soup
+            print("TURNED PAGE TO " + self.current_url)
 
-        print("TURNED PAGE TO " + self.current_url)
-
-    def end_check(self):
+    def end_check(self, soup):
         """In the case of Indeed, the last page will not have any 'Next' pagination, bold or not"""
 
-        r = requests.get(self.current_url)
-        soup = BeautifulSoup(r.content, "html.parser")
+        # r = requests.get(self.current_url)
+        # soup = BeautifulSoup(r.content, "html.parser")
         row_blocks = soup.find_all('span', {'class': 'np'})
         button_list = []
         for block in row_blocks:
