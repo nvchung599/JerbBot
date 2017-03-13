@@ -14,8 +14,6 @@ class IndeedBot(BasicBot):
 
     def scrape_this_page(self, soup):
 
-        # r = requests.get(self.current_url)
-        # soup = BeautifulSoup(r.content, "html.parser")
         row_blocks = soup.find_all('h2', {'class': 'jobtitle'})
         row_dates = soup.find_all('span', {'class': 'date'})
         row_cities = soup.find_all('span', {'itemprop': 'addressLocality'})
@@ -29,6 +27,7 @@ class IndeedBot(BasicBot):
             url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
             date = row_dates[i].get_text()
             city = row_cities[i].get_text()
+
             self.bullshit_filter(title, company, url, city, date)
 
 
@@ -45,8 +44,6 @@ class IndeedBot(BasicBot):
         are_we_there_yet = False  # indicator for whether or not we succeeded at jumping the page
         ua = UserAgent()
         retries = 0
-
-
 
         while not are_we_there_yet:
 
@@ -102,8 +99,6 @@ class IndeedBot(BasicBot):
     def end_check(self, soup):
         """In the case of Indeed, the last page will not have any 'Next' pagination, bold or not"""
 
-        # r = requests.get(self.current_url)
-        # soup = BeautifulSoup(r.content, "html.parser")
         row_blocks = soup.find_all('span', {'class': 'np'})
         button_list = []
         for block in row_blocks:

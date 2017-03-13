@@ -25,8 +25,10 @@ class Agency(object):
         self.jobs_load()
         self.secretary_bot = SecretaryBot()
         self.bot_squad = []
+
+        """INITIALIZE BOTS HERE"""
         self.bot_squad.append(IndeedBot(self.old_jobs))
-        # self.bot_squad.append(CraigsBot(self.old_jobs))
+        self.bot_squad.append(CraigsBot(self.old_jobs))
 
         print('\n')
         print("NOTE: Changes to Job class effect secretary_bot's filters, basic_bot's filters, statistics(), [unique]_bot extraction methods")
