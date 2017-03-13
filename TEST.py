@@ -4,18 +4,16 @@ from trunk.branch.secretary_bot import *
 
 history = []
 indeed_bot = IndeedBot(history)
-url = 'https://sfbay.craigslist.org/search/egr'
+url = 'https://www.monster.com/jobs/search/?q=mechanical+engineer&where=Milpitas%2c+CA&&client=classic&sort=dt.rv.di&rad=50&page=30'
 job = Job('','',url,'', '')
 
 r = requests.get(url)
 soup = BeautifulSoup(r.content, "html.parser")
-row_blocks = soup.find_all('span', {'class': 'result-hood'})
-row_num = 0
 
-for row in row_blocks:
-    row_num += 1
-    print(row_num)
-    print(row.get_text())
+blocks = soup.find_all('span', {'itemprop': 'title'})
+print(len(blocks))
+for block in blocks:
+    print(block)
 
 # indeed_bot.extract_job_details(job)
 # print('\n\n=================================================================================================')

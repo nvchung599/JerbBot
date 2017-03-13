@@ -38,7 +38,7 @@ class CraigsBot(BasicBot):
 
 
     def navigate_to_next_page(self, soup):
-
+        """No bot/scraping detections were observed"""
         self.previous_url = self.current_url
 
         next_page_element = soup.find_all('a', {'title': 'next page'})
@@ -51,6 +51,11 @@ class CraigsBot(BasicBot):
         self.current_url = next_page_link
 
     def end_check(self, soup):
+        """
+        Craigslist's 'next' page button is greyed out on the last page, but contains a hidden hyperlink upon closer
+        inspection. following this link leads to a blank page, the 'next' button of which contains the same link.
+        By comparing URLs (prev vs current) as one turns pages, you can tell if you've hit a dead end or not.
+        """
 
         next_page_element = soup.find_all('a', {'title': 'next page'})
         next_page_link = next_page_element[0].get('href')
