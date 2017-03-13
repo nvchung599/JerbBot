@@ -29,6 +29,7 @@ class SecretaryBot(BasicBot):
                 continue
 
             this_job.approve()
+            this_job.good_hits = []
 
             self.filter_title(this_job)
 
