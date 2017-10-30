@@ -32,13 +32,14 @@ class BasicBot(metaclass=abc.ABCMeta):
         self.job_index_rejected = 0
         self.need_to_terminate = False
 
+        self.initialize_search_settings()
         # TODO TODO TODO TODO TODO TODO TODO TODO
         # TODO TODO TODO TODO TODO TODO TODO TODO
-        self.bad_word_tolerance = 3
-        self.good_word_tolerance = 2
-        self.min_years_exp = 4
-        self.min_str_len = 4
-        self.page_limit = 3
+        self.bad_word_tolerance = int(file_to_set('trunk/filters/bad_word_tolerance.txt').pop()) # Body Text
+        self.good_word_tolerance = int(file_to_set('trunk/filters/good_word_tolerance.txt').pop()) # Body Text
+        self.min_years_exp = int(file_to_set('trunk/filters/min_years_exp.txt').pop())
+        self.min_str_len = int(file_to_set('trunk/filters/min_str_len.txt').pop())
+        self.page_limit = int(file_to_set('trunk/filters/page_limit.txt').pop())
         # TODO TODO TODO TODO TODO TODO TODO TODO
         # TODO TODO TODO TODO TODO TODO TODO TODO
 
@@ -65,6 +66,7 @@ class BasicBot(metaclass=abc.ABCMeta):
 
         for i in range(self.page_limit):
             try:
+
                 self.scrape_this_page(self.current_soup)
 
                 if not self.end_check(self.current_soup):
@@ -81,11 +83,11 @@ class BasicBot(metaclass=abc.ABCMeta):
 
 
             except:
-                print('\n\nSCRAPE_ALL_PAGES HAS ENCOUNTERED ERROR AND HAS BROKEN LOOP')
+                print('\n\nSCRAPE_ALL_PAGES HAS ENCOUNTERED AN EXCEPTION AND HAS BROKEN LOOP')
                 print('RETURNING JOB LIST AS IS\n\n')
                 break
             else:
-                print(self.name + ' RETURNING ALL FOUND JOBS')
+                print('All lights green')
 
         only_new_jobs = []
 
@@ -277,6 +279,25 @@ class BasicBot(metaclass=abc.ABCMeta):
             if not os.path.isfile(file):
                 print("Creating new file " + file)
                 write_file(file, "")
+
+    def initialize_search_settings(self):
+
+        directory_name = 'trunk/filters'
+
+        bad_word_tolerance_filename = directory_name + "/bad_word_tolerance.txt"
+        good_word_tolerance_filename = directory_name + "/good_word_tolerance.txt"
+        min_years_exp_filename = directory_name + "/min_years_exp.txt"
+        min_str_len_filename = directory_name + "/min_str_len.txt"
+        page_limit_filename = directory_name + "/page_limit.txt"
+
+        if not os.path.exists(directory_name):
+            create_folder(directory_name)
+
+        for file in (bad_word_tolerance_filename, good_word_tolerance_filename, min_years_exp_filename, min_str_len_filename, page_limit_filename):
+            if not os.path.isfile(file):
+                print("Creating new file " + file)
+                write_file(file, "0")
+        return 0
 
     def initialize_base_url(self):
         """Base URLs are stored in .txt files alongside their respective bots in trunk/branch"""

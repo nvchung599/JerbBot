@@ -1,8 +1,7 @@
 3d
 ansys fea finite
+blog
 cnc machining
-dfa
-dfmae
 drafting drafter draft
 environmental
 fabrication dfm
@@ -16,7 +15,11 @@ modeling
 pe eit
 plastic
 printing printer
+robotics
 shock
+shop
+terms
 thermal
 tolerance
+training
 vibration

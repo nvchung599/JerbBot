@@ -109,5 +109,4 @@ def find_bold_number(my_string):
     return 0
 
 
-
 # TODO http://opentechschool.github.io/python-data-intro/core/text-files.html

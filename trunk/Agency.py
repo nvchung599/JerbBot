@@ -28,9 +28,9 @@ class Agency(object):
         self.bot_squad = []
 
         """INITIALIZE BOTS HERE"""
-        #self.bot_squad.append(IndeedBot(self.old_jobs))
-        #self.bot_squad.append(CraigsBot(self.old_jobs))
-        self.bot_squad.append(MonsterBot(self.old_jobs))
+        self.bot_squad.append(IndeedBot(self.old_jobs))
+        # self.bot_squad.append(CraigsBot(self.old_jobs))
+        # self.bot_squad.append(MonsterBot(self.old_jobs))
 
         print('\n')
         print("NOTE: Changes to Job class effect secretary_bot's filters, basic_bot's filters, statistics(), [unique]_bot extraction methods")
@@ -53,8 +53,8 @@ class Agency(object):
         while not i_want_to_quit:
 
             print('__________________________________________________________________')
-            print(' 1-Repo  |  2-Scrape    |  3-Commit    |              |  5-Config ')
-            print(' q-Quit  |  w-ApplyOne  |  e-ApplyAll  |  r-Refresh   |           ')
+            print('      1-View Jobs    |    2-Scrape Jobs      |    3-Config ')
+            print('      q-Quit         |    w-Apply Tracker    |    r-Refresh                 ')
             print('__________________ Input Command & Press Enter ___________________')
             my_input = input()
 
@@ -66,30 +66,32 @@ class Agency(object):
 
             if my_input == '2':
                 self.scrape()
-                continue
-
-            if my_input == '3':
                 self.jobs_save(self.new_jobs, 'update')
                 self.new_jobs = []
                 continue
+
+            #if my_input == '3':
+            #    self.jobs_save(self.new_jobs, 'update')
+            #    self.new_jobs = []
+            #    continue
 
             if my_input == 'r':
                 self.refresh_history()
                 self.statistics(self.old_jobs)
                 continue
 
-            if my_input == '5':
-                print('WIP for this input')
+            if my_input == '3':
+                self.modify_search_settings()
                 continue
 
             if my_input == 'q':
-                print('Have a nice day')
+                print('bfy loves you')
                 break
 
-            if my_input == 'e':
-                if self.jobs_load():
-                    self.apply_all()
-                continue
+            #if my_input == 'e':
+            #    if self.jobs_load():
+            #        self.apply_all()
+            #    continue
 
             if my_input == 'w':
                 if self.jobs_load():
@@ -272,7 +274,7 @@ class Agency(object):
             print('Job list has been committed to disk')
 
     def jobs_load(self):
-        """Updates Agency's job list. Call whenever you need to modify the job list on disk."""
+        """Updates Agency's job list. Call whenever you need to modify the job list in RAM."""
 
         if os.path.exists('trunk/records/jobs_saved.pkl'):
             with open('trunk/records/jobs_saved.pkl', 'rb') as file_input:
@@ -281,3 +283,146 @@ class Agency(object):
         else:
             print("job_records cannot be found")
             return False
+
+    def modify_search_settings(self):
+        """Initializes search settings on program start"""
+        want_to_exit = False
+        while want_to_exit == False:
+
+            print('_____ Current Settings _____\n'
+                  ' good_word_tolerance  = %d\n' % self.bot_squad[0].good_word_tolerance,
+                  'bad_word_tolerance   = %d\n' % self.bot_squad[0].bad_word_tolerance,
+                  'min_years_exp        = %d\n' % self.bot_squad[0].min_years_exp,
+                  'min_str_len          = %d\n' % self.bot_squad[0].min_str_len,
+                  'page_limit           = %d\n' % self.bot_squad[0].page_limit,)
+
+            for bot in self.bot_squad:
+                print('     %s is seeded with URL:' % bot.name)
+                print('     %s\n' % bot.base_url)
+
+            print('Choose parameter to modify:\n'
+                  '____________________________________\n'
+                  ' 1-good_word_tolerance   |   q-Quit\n'
+                  ' 2-bad_word_tolerance    |   w-Seed URLs\n'
+                  ' 3-min_years_exp         |   e-Site Toggles\n'
+                  ' 4-min_str_len           |   r-Filter Tuning\n'
+                  ' 5-page_limit            |\n'
+                  '_______________ Input ______________\n')
+            my_input = input()
+
+            if my_input == '1':
+                print('Input integer:\n')
+                parameter_input = input()
+                if not is_integer(parameter_input):
+                    print('Invalid input\n'
+                          'returning to main menu')
+                    return
+                else:
+                    f = open('trunk/filters/good_word_tolerance.txt', 'w')
+                    f.write(parameter_input)
+                    f.close()
+                    print('good_word_tolerance changed to %d\n' % int(parameter_input))
+                    print('restart program to take effect')
+                continue
+
+            if my_input == '2':
+                print('Input integer:\n')
+                parameter_input = input()
+                if not is_integer(parameter_input):
+                    print('Invalid input\n'
+                          'returning to main menu')
+                    return
+                else:
+                    f = open('trunk/filters/bad_word_tolerance.txt', 'w')
+                    f.write(parameter_input)
+                    f.close()
+                    print('bad_word_tolerance changed to %d\n' % int(parameter_input))
+                    print('restart program to take effect')
+                continue
+
+            if my_input == '3':
+                print('Input integer:\n')
+                parameter_input = input()
+                if not is_integer(parameter_input):
+                    print('Invalid input\n'
+                          'returning to main menu')
+                    return
+                else:
+                    f = open('trunk/filters/min_years_exp.txt', 'w')
+                    f.write(parameter_input)
+                    f.close()
+                    print('min_years_exp changed to %d\n' % int(parameter_input))
+                    print('restart program to take effect')
+                continue
+
+            if my_input == '4':
+                print('Input integer:\n')
+                parameter_input = input()
+                if not is_integer(parameter_input):
+                    print('Invalid input\n'
+                          'returning to main menu')
+                    return
+                else:
+                    f = open('trunk/filters/min_str_len.txt', 'w')
+                    f.write(parameter_input)
+                    f.close()
+                    print('min_str_len changed to %d\n' % int(parameter_input))
+                    print('restart program to take effect')
+                continue
+
+            if my_input == '5':
+                print('Input integer:\n')
+                parameter_input = input()
+                if not is_integer(parameter_input):
+                    print('Invalid input\n'
+                          'returning to main menu')
+                    return
+                else:
+                    f = open('trunk/filters/page_limit.txt', 'w')
+                    f.write(parameter_input)
+                    f.close()
+                    print('page_limit changed to %d\n' % int(parameter_input))
+                    print('restart program to take effect')
+                continue
+
+            if my_input == 'q':
+                want_to_exit = True
+                print('Returning to main menu')
+                continue
+
+            if my_input == 'w':
+                print('WIP')
+                continue
+
+            if my_input == 'e':
+                print('WIP')
+                continue
+
+            if my_input == 'r':
+                print('Instructions: edit keyword libraries directly in the .txt files:\n'
+                      '     trunk/filters/essential_body.txt\n'
+                      '     trunk/filters/excluded_body.txt\n'
+                      '     trunk/filters/excluded_title.txt\n')
+                return
+
+            print('Invalid input\n')
+
+
+            # TODO TODO TODO TODO TODO TODO TODO TODO
+            # TODO TODO TODO TODO TODO TODO TODO TODO
+    def modify_numerical_parameter(self, parameter_name):
+        print('Input integer for %s:\n' % parameter_name)
+        parameter_input = input()
+        if not is_integer(parameter_input):
+            print('Invalid input\n'
+                  'returning to main menu')
+            return False
+        else:
+            parameter_path = 'trunk/filters/' + parameter_name + '.txt'
+            f = open(parameter_path, 'w')
+            f.write(parameter_input)
+            f.close()
+            print('%s changed to %d\n' % (parameter_name, int(parameter_input)))
+        return True
+            # TODO TODO TODO TODO TODO TODO TODO TODO
+            # TODO TODO TODO TODO TODO TODO TODO TODO

@@ -16,6 +16,12 @@ class MonsterBot(BasicBot):
         row_cities = soup.find_all('span', {'itemprop': 'address'})
         row_companies = soup.find_all('span', {'itemprop': 'name'})
 
+        print('hey hey hey')
+        print(row_titles)
+        print(row_dates)
+        print(row_cities)
+        print(row_companies)
+
         for i in range(len(row_titles)):
 
             self.tally()

@@ -1,1 +1,1 @@
-https://www.monster.com/jobs/search/?q=mechanical+engineer&where=Milpitas%2c+CA&&client=classic&sort=dt.rv.di&rad=50
+https://www.monster.com/jobs/search/?q=mechanical-engineer&where=milpitas

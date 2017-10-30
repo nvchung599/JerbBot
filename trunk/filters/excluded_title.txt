@@ -38,6 +38,7 @@ rf
 senior sr
 sigma
 soil
+strategy strate
 structural
 survey
 surveyor

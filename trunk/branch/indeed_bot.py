@@ -16,24 +16,22 @@ class IndeedBot(BasicBot):
 
         row_blocks = soup.find_all('h2', {'class': 'jobtitle'})
         row_dates = soup.find_all('span', {'class': 'date'})
-        row_cities = soup.find_all('span', {'itemprop': 'addressLocality'})
+        row_cities = soup.find_all('span', {'class': 'location'})
 
         for i in range(len(row_blocks)):
 
             self.tally()
-
             title = row_blocks[i].contents[1].get('title')
             company = strip(row_blocks[i].next_sibling.next_sibling.get_text())
             url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
             date = row_dates[i].get_text()
             city = row_cities[i].get_text()
-
             self.bullshit_filter(title, company, url, city, date)
 
 
     def navigate_to_next_page(self, soup):
         """
-        Indeed.com has an anti-scraping mechanism that randomly prevents the bot from obtaining the correct URL from
+        Indeed.com has an anti-scraping mechanism (intentional or unintentional) that randomly prevents the bot from obtaining the correct URL from
         the 'Next' button. When this happens, the resulting URL either leads to an invalid page (creates an exception)
         or it links to the same page as before, keeping the bot in one spot.
 
@@ -41,7 +39,7 @@ class IndeedBot(BasicBot):
         verify a page turn by observing the bolded pagination in the page footer.
         """
 
-        are_we_there_yet = False  # indicator for whether or not we succeeded at jumping the page
+        are_we_there_yet = False
         ua = UserAgent()
         retries = 0
 
