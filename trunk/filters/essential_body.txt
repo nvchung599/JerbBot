@@ -15,7 +15,7 @@ modeling
 pe eit
 plastic
 printing printer
-robotics
+robotics robot robots
 shock
 shop
 terms

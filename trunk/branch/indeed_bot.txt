@@ -1,1 +1,1 @@
-https://www.indeed.com/jobs?q=mechanical+engineer&l=Milpitas%2C+CA&radius=50
+https://www.indeed.com/jobs?q=robotics+mechanical+engineer&l=Milpitas%2C+CA&radius=25

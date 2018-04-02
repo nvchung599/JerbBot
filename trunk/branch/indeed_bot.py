@@ -25,7 +25,7 @@ class IndeedBot(BasicBot):
             company = strip(row_blocks[i].next_sibling.next_sibling.get_text())
             url = 'https://www.indeed.com' + row_blocks[i].contents[1].get('href')
             date = row_dates[i].get_text()
-            city = row_cities[i].get_text()
+            city = '---' #row_cities[i].get_text() Indeed scrambles this one as well...
             self.bullshit_filter(title, company, url, city, date)
 
 
