@@ -85,7 +85,7 @@ class Agency(object):
                 continue
 
             if my_input == 'q':
-                print('bfy loves you')
+                print('stay positive')
                 break
 
             #if my_input == 'e':
@@ -391,7 +391,11 @@ class Agency(object):
                 continue
 
             if my_input == 'w':
-                print('WIP')
+                print('Instructions: edit seed URLs directly in the .txt files:\n'
+                      '     trunk/branch/indeed_bot.txt\n'
+                      '     trunk/branch/monster_bot.tx\n'
+                      '     trunk/branch/craigs_bot.tx\n')
+
                 continue
 
             if my_input == 'e':
