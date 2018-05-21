@@ -67,10 +67,12 @@ __Refresh__ reapplies filters to your job cache. Use after updating your
 keyword lists and/or numerical filter parameters.
 
 Jobsite Scraping:
+
 ![Scraping](https://github.com/nvchung599/JerbBot/blob/master/Scraping.png)
 
 Filtered Results:
-![Results](https://github.com/nvchung599/JerbBot/blob/master/Results.png)
+
+![Results](https://github.com/nvchung599/JerbBot/blob/master/Results.PNG)
 
 ## Acknowledgments
 
